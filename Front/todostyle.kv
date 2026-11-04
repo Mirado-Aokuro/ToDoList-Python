@@ -1,0 +1,98 @@
+# Conteneur principal avec un fond entièrement blanc
+<MainLayout>:
+    orientation: 'vertical'
+    padding: '20dp'
+    spacing: '15dp'
+    
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1  # Blanc pur
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    # Titre principal de l'application
+    Label:
+        text: "To-Do List Cloud"
+        font_size: '24sp'
+        bold: True
+        color: 0.1, 0.1, 0.1, 1
+        size_hint_y: None
+        height: '40dp'
+        halign: 'center'
+
+    # Zone de saisie et bouton d'ajout
+    BoxLayout:
+        size_hint_y: None
+        height: '50dp'
+        spacing: '10dp'
+
+        TextInput:
+            id: task_input
+            hint_text: "Ajouter une nouvelle tâche..."
+            multiline: False
+            font_size: '16sp'
+            background_color: 0.95, 0.95, 0.95, 1
+            foreground_color: 0, 0, 0, 1
+
+        Button:
+            text: "Ajouter"
+            size_hint_x: None
+            width: '100dp'
+            background_color: 0.2, 0.6, 0.8, 1
+            color: 1, 1, 1, 1
+            on_release: root.add_task()
+
+    # Liste déroulante des tâches
+    ScrollView:
+        BoxLayout:
+            id: tasks_container
+            orientation: 'vertical'
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: '8dp'
+
+# Ligne représentant une tâche individuelle
+<TaskItem>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: '45dp'
+    spacing: '10dp'
+
+    # Titre de la tâche
+    Label:
+        text: root.task_title
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+        markup: True  # <--- TRÈS IMPORTANT : Permet d'interpréter les balises [s] pour barrer le texte
+        color: (0.6, 0.6, 0.6, 1) if root.is_completed else (0, 0, 0, 1)
+        font_size: '15sp'
+
+    # Affichage de la date de création automatique
+    Label:
+        text: root.created_at
+        size_hint_x: None
+        width: '110dp'
+        font_size: '12sp'
+        color: 0.5, 0.5, 0.5, 1
+
+    # Bouton Done (vert) avec un texte lisible et une taille adaptée
+    Button:
+        text: "Done"
+        size_hint_x: None
+        width: '60dp'  # Largeur augmentée pour afficher le mot complet
+        background_color: 0.2, 0.8, 0.2, 1
+        color: 1, 1, 1, 1
+        font_size: '13sp'
+        on_release: root.done_callback(root.task_id)
+
+    # Bouton Delete (rouge) avec un texte lisible et une taille adaptée
+    Button:
+        text: "Delete"
+        size_hint_x: None
+        width: '65dp'  # Largeur augmentée pour afficher le mot complet
+        background_color: 0.9, 0.2, 0.2, 1
+        color: 1, 1, 1, 1
+        font_size: '13sp'
+        on_release: root.delete_callback(root.task_id)
