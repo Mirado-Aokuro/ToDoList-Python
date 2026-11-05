@@ -1,4 +1,4 @@
-# Conteneur principal avec un fond entièrement blanc
+# Écran principal de l'application
 <MainLayout>:
     orientation: 'vertical'
     padding: '20dp'
@@ -6,12 +6,11 @@
     
     canvas.before:
         Color:
-            rgba: 1, 1, 1, 1  # Blanc pur
+            rgba: 1, 1, 1, 1  # Fond blanc pur
         Rectangle:
             pos: self.pos
             size: self.size
 
-    # Titre principal de l'application
     Label:
         text: "To-Do List Cloud"
         font_size: '24sp'
@@ -21,78 +20,200 @@
         height: '40dp'
         halign: 'center'
 
-    # Zone de saisie et bouton d'ajout
-    BoxLayout:
+    Button:
+        text: "+ Nouvelle Tâche"
         size_hint_y: None
         height: '50dp'
-        spacing: '10dp'
+        background_color: 0.2, 0.6, 0.8, 1
+        color: 1, 1, 1, 1
+        font_size: '16sp'
+        bold: True
+        on_release: root.open_add_task_popup()
 
-        TextInput:
-            id: task_input
-            hint_text: "Ajouter une nouvelle tâche..."
-            multiline: False
-            font_size: '16sp'
-            background_color: 0.95, 0.95, 0.95, 1
-            foreground_color: 0, 0, 0, 1
-
-        Button:
-            text: "Ajouter"
-            size_hint_x: None
-            width: '100dp'
-            background_color: 0.2, 0.6, 0.8, 1
-            color: 1, 1, 1, 1
-            on_release: root.add_task()
-
-    # Liste déroulante des tâches
     ScrollView:
         BoxLayout:
             id: tasks_container
             orientation: 'vertical'
             size_hint_y: None
             height: self.minimum_height
-            spacing: '8dp'
+            spacing: '10dp'
 
-# Ligne représentant une tâche individuelle
+# Ligne d'une tâche
 <TaskItem>:
     orientation: 'horizontal'
     size_hint_y: None
-    height: '45dp'
+    height: '60dp'
     spacing: '10dp'
+    padding: '5dp'
 
-    # Titre de la tâche
-    Label:
-        text: root.task_title
-        halign: 'left'
-        valign: 'middle'
-        text_size: self.size
-        markup: True  # <--- TRÈS IMPORTANT : Permet d'interpréter les balises [s] pour barrer le texte
-        color: (0.6, 0.6, 0.6, 1) if root.is_completed else (0, 0, 0, 1)
-        font_size: '15sp'
+    canvas.before:
+        Color:
+            rgba: 0.95, 0.95, 0.95, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [5]
 
-    # Affichage de la date de création automatique
+    # Bloc indicateur de couleur de priorité (dynamique)
+    Widget:
+        size_hint_x: None
+        width: '12dp'
+        canvas.before:
+            Color:
+                rgba: root.indicator_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        
+        Label:
+            text: root.task_title
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            markup: True
+            color: (0.6, 0.6, 0.6, 1) if root.is_completed else (0, 0, 0, 1)
+            font_size: '15sp'
+            bold: True
+
+        Label:
+            text: root.description if root.description else "Aucune description"
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            color: 0.5, 0.5, 0.5, 1
+            font_size: '12sp'
+
     Label:
         text: root.created_at
         size_hint_x: None
         width: '110dp'
-        font_size: '12sp'
+        font_size: '11sp'
         color: 0.5, 0.5, 0.5, 1
 
-    # Bouton Done (vert) avec un texte lisible et une taille adaptée
     Button:
         text: "Done"
         size_hint_x: None
-        width: '60dp'  # Largeur augmentée pour afficher le mot complet
+        width: '60dp'
         background_color: 0.2, 0.8, 0.2, 1
         color: 1, 1, 1, 1
         font_size: '13sp'
         on_release: root.done_callback(root.task_id)
 
-    # Bouton Delete (rouge) avec un texte lisible et une taille adaptée
     Button:
         text: "Delete"
         size_hint_x: None
-        width: '65dp'  # Largeur augmentée pour afficher le mot complet
+        width: '65dp'
         background_color: 0.9, 0.2, 0.2, 1
         color: 1, 1, 1, 1
         font_size: '13sp'
         on_release: root.delete_callback(root.task_id)
+
+# Pop-up d'ajout avec fond blanc pur et boutons radio
+<AddTaskPopup>:
+    title: "Créer une nouvelle tâche"
+    size_hint: (0.8, 0.65)
+    auto_dismiss: True
+    background: ''               
+    background_color: 1, 1, 1, 1 
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: '20dp'
+        spacing: '12dp'
+
+        Label:
+            text: "Nom de la tâche :"
+            size_hint_y: None
+            height: '25dp'
+            color: 0.2, 0.2, 0.2, 1
+            halign: 'left'
+            text_size: self.size
+
+        TextInput:
+            id: popup_title_input
+            hint_text: "Ex: Finir le projet..."
+            multiline: False
+            size_hint_y: None
+            height: '40dp'
+            background_color: 0.93, 0.93, 0.93, 1
+            foreground_color: 0, 0, 0, 1
+
+        Label:
+            text: "Description (optionnelle) :"
+            size_hint_y: None
+            height: '25dp'
+            color: 0.2, 0.2, 0.2, 1
+            halign: 'left'
+            text_size: self.size
+
+        TextInput:
+            id: popup_desc_input
+            hint_text: "Détails de la tâche..."
+            multiline: True
+            size_hint_y: None
+            height: '60dp'
+            background_color: 0.93, 0.93, 0.93, 1
+            foreground_color: 0, 0, 0, 1
+
+        Label:
+            text: "Niveau de priorité :"
+            size_hint_y: None
+            height: '25dp'
+            color: 0.2, 0.2, 0.2, 1
+            halign: 'left'
+            text_size: self.size
+
+        # Groupe de boutons radio
+        BoxLayout:
+            size_hint_y: None
+            height: '35dp'
+            spacing: '5dp'
+
+            CheckBox:
+                group: "priority_group"
+                active: True
+                size_hint_x: None
+                width: '35dp'
+                color: 0.2, 0.7, 0.3, 1
+                on_active: root.on_checkbox_active(self, self.active, "Normal")
+            Label:
+                text: "Normal"
+                color: 0.2, 0.7, 0.3, 1
+                font_size: '13sp'
+                halign: 'left'
+
+            CheckBox:
+                group: "priority_group"
+                size_hint_x: None
+                width: '35dp'
+                color: 0.9, 0.6, 0.1, 1
+                on_active: root.on_checkbox_active(self, self.active, "Important")
+            Label:
+                text: "Important"
+                color: 0.8, 0.6, 0.1, 1
+                font_size: '13sp'
+                halign: 'left'
+
+            CheckBox:
+                group: "priority_group"
+                size_hint_x: None
+                width: '35dp'
+                color: 0.9, 0.2, 0.2, 1
+                on_active: root.on_checkbox_active(self, self.active, "Très important")
+            Label:
+                text: "Très important"
+                color: 0.9, 0.2, 0.2, 1
+                font_size: '13sp'
+                halign: 'left'
+
+        Button:
+            text: "Enregistrer la tâche"
+            size_hint_y: None
+            height: '45dp'
+            background_color: 0.2, 0.6, 0.8, 1
+            color: 1, 1, 1, 1
+            bold: True
+            on_release: root.submit_task()
